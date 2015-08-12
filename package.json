@@ -26,6 +26,7 @@
     "index.js",
     "lib/configproxy.js",
     "lib/trie.js",
+    "lib/db.js",
     "bin/configurable-http-proxy"
   ],
   "bin": {
