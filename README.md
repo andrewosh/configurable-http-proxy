@@ -5,18 +5,18 @@ A simple wrapper around [node-http-proxy][] that adds a REST API for updating th
 The proxy is developed as a part of the [Jupyter Hub][] multi-user server.
 
 [node-http-proxy]: https://github.com/nodejitsu/node-http-proxy
-[Jupyter Hub]: https://github.com/jupyter/jupyterhub
+[Jupyter Hub]: https://github.com/jupyterhub/jupyterhub
 
 
 ## Install
 
 To install `configurable-http-proxy`:
 
-    npm install -g jupyter/configurable-http-proxy
+    npm install -g configurable-http-proxy
 
 To install from the repo:
     
-    git clone https://github.com/jupyter/configurable-http-proxy.git
+    git clone https://github.com/jupyterhub/configurable-http-proxy.git
     cd configurable-http-proxy
     # Use -g for global install
     npm install [-g]
@@ -45,23 +45,35 @@ in the proxy table:
 
     -h, --help                       output usage information
     -V, --version                    output the version number
-    --ip <n>                         Public-facing IP of the proxy
-    --port <n>                       Public-facing port of the proxy
+    --ip <ip-address>                Public-facing IP of the proxy
+    --port <n> (defaults to 8000)    Public-facing port of the proxy
     --ssl-key <keyfile>              SSL key to use, if any
     --ssl-cert <certfile>            SSL certificate to use, if any
+    --ssl-ca <ca-file>               SSL certificate authority, if any
+    --ssl-request-cert               Request SSL certs to authenticate clients
+    --ssl-reject-unauthorized        Reject unauthorized SSL connections (only meaningful if --ssl-request-cert is given)
+    --ssl-ciphers <ciphers>          `:`-separated ssl cipher list. Default excludes RC4
+    --ssl-allow-rc4                  Allow RC4 cipher for SSL (disabled by default)
+    --ssl-dhparam <dhparam-file>     SSL Diffie-Helman Parameters pem file, if any
     --api-ip <ip>                    Inward-facing IP for API requests
-    --api-port <n>                   Inward-facing port for API requests
+    --api-port <n>                   Inward-facing port for API requests (defaults to --port=value+1)
     --api-ssl-key <keyfile>          SSL key to use, if any, for API requests
     --api-ssl-cert <certfile>        SSL certificate to use, if any, for API requests
-    --default-target <host>          Default proxy target (proto://host[:port]
-    --error-target <host>            Alternate server for handling proxy errors (proto://host[:port]
-    --error-path <path>              Alternate server for handling proxy errors (proto://host[:port]
+    --api-ssl-ca <ca-file>           SSL certificate authority, if any, for API requests
+    --api-ssl-request-cert           Request SSL certs to authenticate clients for API requests
+    --api-ssl-reject-unauthorized    Reject unauthorized SSL connections (only meaningful if --api-ssl-request-cert is given)
+    --default-target <host>          Default proxy target (proto://host[:port])
+    --error-target <host>            Alternate server for handling proxy errors (proto://host[:port])
+    --error-path <path>              Alternate server for handling proxy errors (proto://host[:port])
     --redirect-port <redirect-port>  Redirect HTTP requests on this port to the server on HTTPS
     --no-x-forward                   Don't add 'X-forward-' headers to proxied requests
     --no-prepend-path                Avoid prepending target paths to proxied requests
     --no-include-prefix              Don't include the routing prefix in proxied requests
     --insecure                       Disable SSL cert verification
     --host-routing                   Use host routing (host as first level of path)
+    --statsd-host <host>             Host to send statsd statistics to
+    --statsd-port <port>             Port to send statsd statistics to
+    --statsd-prefix <prefix>         Prefix to use for statsd statistics
     --log-level <loglevel>           Log level (debug, info, warn, error)
 ```
 

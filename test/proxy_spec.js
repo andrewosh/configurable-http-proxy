@@ -14,14 +14,13 @@ describe("Proxy Tests", function () {
     var host_test = "test.127.0.0.1.xip.io";
     var host_url = "http://" + host_test + ":" + port;
 
-    var r;
+    var r = request.defaults({
+        method: 'GET',
+        url: proxy_url,
+    });
 
     beforeEach(function (callback) {
         proxy = util.setup_proxy(port, callback);
-        r = request.defaults({
-            method: 'GET',
-            url: proxy_url,
-        });
     });
     
     afterEach(function (callback) {
@@ -30,6 +29,7 @@ describe("Proxy Tests", function () {
     
     it("basic HTTP request", function (done) {
         r(proxy_url, function (error, res, body) {
+            expect(error).toBe(null);
             expect(res.statusCode).toEqual(200);
             body = JSON.parse(body);
             expect(body).toEqual(jasmine.objectContaining({
@@ -66,9 +66,33 @@ describe("Proxy Tests", function () {
         });
     });
     
+    it("proxy_request event can modify headers", function (done) {
+        var called = {};
+        proxy.on('proxy_request', function (req, res) {
+            req.headers.testing = 'Test Passed';
+            called.proxy_request = true;
+        });
+        
+        r(proxy_url, function (error, res, body) {
+            expect(error).toBe(null);
+            expect(res.statusCode).toEqual(200);
+            body = JSON.parse(body);
+            expect(called.proxy_request).toBe(true);
+            expect(body).toEqual(jasmine.objectContaining({
+                path: '/',
+            }));
+            expect(body.headers).toEqual(jasmine.objectContaining({
+                testing: 'Test Passed',
+            }));
+            
+            done();
+        });
+    });
+    
     it("target path is prepended by default", function (done) {
         util.add_target(proxy, '/bar', test_port, false, '/foo');
         r(proxy_url + '/bar/rest/of/it', function (error, res, body) {
+            expect(error).toBe(null);
             expect(res.statusCode).toEqual(200);
             body = JSON.parse(body);
             expect(body).toEqual(jasmine.objectContaining({
@@ -82,6 +106,7 @@ describe("Proxy Tests", function () {
     it("handle URI encoding", function (done) {
         util.add_target(proxy, '/b@r/b r', test_port, false, '/foo');
         r(proxy_url + '/b%40r/b%20r/rest/of/it', function (error, res, body) {
+            expect(error).toBe(null);
             expect(res.statusCode).toEqual(200);
             body = JSON.parse(body);
             expect(body).toEqual(jasmine.objectContaining({
@@ -95,6 +120,7 @@ describe("Proxy Tests", function () {
     it("handle @ in URI same as %40", function (done) {
         util.add_target(proxy, '/b@r/b r', test_port, false, '/foo');
         r(proxy_url + '/b@r/b%20r/rest/of/it', function (error, res, body) {
+            expect(error).toBe(null);
             expect(res.statusCode).toEqual(200);
             body = JSON.parse(body);
             expect(body).toEqual(jasmine.objectContaining({
@@ -109,6 +135,7 @@ describe("Proxy Tests", function () {
         proxy.proxy.options.prependPath = false;
         util.add_target(proxy, '/bar', test_port, false, '/foo');
         r(proxy_url + '/bar/rest/of/it', function (error, res, body) {
+            expect(error).toBe(null);
             expect(res.statusCode).toEqual(200);
             body = JSON.parse(body);
             expect(body).toEqual(jasmine.objectContaining({
@@ -123,6 +150,7 @@ describe("Proxy Tests", function () {
         proxy.includePrefix = false;
         util.add_target(proxy, '/bar', test_port, false, '/foo');
         r(proxy_url + '/bar/rest/of/it', function (error, res, body) {
+            expect(error).toBe(null);
             expect(res.statusCode).toEqual(200);
             body = JSON.parse(body);
             expect(body).toEqual(jasmine.objectContaining({
@@ -138,6 +166,7 @@ describe("Proxy Tests", function () {
         proxy.proxy.options.prependPath = false;
         util.add_target(proxy, '/bar', test_port, false, '/foo');
         r(proxy_url + '/bar/rest/of/it', function (error, res, body) {
+            expect(error).toBe(null);
             expect(res.statusCode).toEqual(200);
             body = JSON.parse(body);
             expect(body).toEqual(jasmine.objectContaining({
@@ -152,6 +181,7 @@ describe("Proxy Tests", function () {
         proxy.host_routing = true;
         util.add_target(proxy, '/' + host_test, test_port, false);
         r(host_url + '/some/path', function(error, res, body) {
+            expect(error).toBe(null);
             expect(res.statusCode).toEqual(200);
             body = JSON.parse(body);
             expect(body).toEqual(jasmine.objectContaining({
@@ -167,6 +197,7 @@ describe("Proxy Tests", function () {
         util.setup_proxy(port, function (proxy) {
             var url = 'http://127.0.0.1:' + port + '/foo/bar';
             r(url, function (error, res, body) {
+                expect(error).toBe(null);
                 expect(res.statusCode).toEqual(404);
                 expect(res.headers['content-type']).toEqual('text/plain');
                 expect(body).toEqual('/foo/bar');
@@ -184,10 +215,12 @@ describe("Proxy Tests", function () {
         });
         proxy.error_path = path.join(__dirname, 'error');
         r(host_url + '/nope', function (error, res, body) {
+            expect(error).toBe(null);
             expect(res.statusCode).toEqual(404);
             expect(res.headers['content-type']).toEqual('text/html');
             expect(body).toMatch(/404'D/);
             r(host_url + '/missing/prefix', function (error, res, body) {
+                expect(error).toBe(null);
                 expect(res.statusCode).toEqual(503);
                 expect(res.headers['content-type']).toEqual('text/html');
                 expect(body).toMatch(/UNKNOWN/);
@@ -203,6 +236,7 @@ describe("Proxy Tests", function () {
         });
         
         r(host_url + '/nope', function (error, res, body) {
+            expect(error).toBe(null);
             expect(res.statusCode).toEqual(404);
             expect(res.headers['content-type']).toEqual('text/html');
             expect(body).toMatch(/404:/);
